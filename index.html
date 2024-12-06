@@ -1,0 +1,485 @@
+<html><head><base href="/?app=ar-neon-robot-pc&lang=es&sound=robotic&layout=top-left-mute&menu=back-button&animations=enabled&pccomponents=motherboard"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AR Neón Robot y Componentes PC - Experiencia Interactiva Animada</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
+    }
+    #neonBackground {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    #robotImage {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 20px;
+      animation: float 6s ease-in-out infinite;
+      z-index: 1;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.7));
+    }
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+    #startButton, #backButton, #muteButton, #mainMenuButton, #pcComponentsButton, #modelViewerButton {
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: 2px solid #0ff;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+      text-shadow: 0 0 5px #0ff;
+    }
+    #startButton:hover, #backButton:hover, #muteButton:hover, #mainMenuButton:hover, #pcComponentsButton:hover, #modelViewerButton:hover {
+      background-color: rgba(0, 255, 255, 0.3);
+      color: #fff;
+      box-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 60px #0ff;
+    }
+    #backButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: none;
+    }
+    #muteButton {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      border-color: #f0f;
+      box-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 30px #f0f;
+      text-shadow: 0 0 5px #f0f;
+    }
+    #muteButton:hover {
+      background-color: rgba(255, 0, 255, 0.3);
+    }
+    #menu, #pcComponentsMenu, #modelViewerMenu {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+    }
+    #menu h2, #pcComponentsMenu h2, #modelViewerMenu h2 {
+      margin-top: 0;
+      color: #0ff;
+      text-align: center;
+      text-shadow: 0 0 10px #0ff;
+    }
+    #menu ul, #pcComponentsMenu ul, #modelViewerMenu ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #menu li, #pcComponentsMenu li, #modelViewerMenu li {
+      margin: 15px 0;
+    }
+    #menu button, #pcComponentsMenu button, #modelViewerMenu button {
+      width: 100%;
+      padding: 12px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: 2px solid #0fa;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      text-shadow: 0 0 5px #0fa;
+      box-shadow: 0 0 10px #0fa;
+    }
+    #menu button:hover, #pcComponentsMenu button:hover, #modelViewerMenu button:hover {
+      background-color: rgba(0, 255, 170, 0.3);
+      color: #fff;
+      box-shadow: 0 0 20px #0fa, 0 0 40px #0fa;
+    }
+    #arView, #cameraView {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #mainMenuButton {
+      margin-top: 20px;
+      border-color: #f0f;
+      box-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 30px #f0f;
+      text-shadow: 0 0 5px #f0f;
+    }
+    #mainMenuButton:hover {
+      background-color: rgba(255, 0, 255, 0.3);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script> 
+  </head>
+  <body>
+  <svg id="neonBackground" width="100%" height="100%">
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+
+  <img id="robotImage" src="robot.png" alt="Robot realidad aumentada" width="300" height="300">
+
+  <button id="startButton">Iniciar Experiencia AR</button>
+
+  <div id="menu">
+    <h2>Opciones de Realidad Aumentada</h2>
+    <ul>
+      <li><button id="modelViewerButton">Model-Viewer</button></li>
+      <li><button onclick="startCamera()">Usar Cámara</button></li>
+      <li><button id="pcComponentsButton">Componentes de PC</button></li>
+    </ul>
+    <button id="mainMenuButton">Volver Atrás</button>
+  </div>
+
+  <div id="modelViewerMenu" style="display: none;">
+    <h2>Opciones de Model-Viewer</h2>
+    <ul>
+      <li><button onclick="loadModel('https://modelviewer.dev/shared-assets/models/Astronaut.glb')">Astronauta</button></li>
+      <li><button onclick="loadModel('https://modelviewer.dev/shared-assets/models/RobotExpressive.glb')">Robot</button></li>
+      <li><button onclick="loadModel('https://modelviewer.dev/shared-assets/models/Horse.glb')">Caballo</button></li>
+    </ul>
+    <button id="backToMainMenu">Volver al Menú Principal</button>
+  </div>
+
+  <div id="pcComponentsMenu">
+    <h2>Componentes de PC</h2>
+    <ul>
+      <li><button onclick="loadModel('pm.glb')">Placa Madre</button></li>
+      <li><button onclick="loadModel('video1.glb')">Placa de Video</button></li>
+      <li><button onclick="loadModel('ram1.glb')">Memoria RAM</button></li>
+      <li><button onclick="loadModel('rom.glb')">Memoria ROM</button></li>
+      <li><button onclick="loadModel('intel.glb')">Procesador</button></li>
+      <li><button onclick="loadModel('ssd1.glb')">SSD</button></li>
+    </ul>
+  </div>
+
+  <div id="arView"></div>
+  <video id="cameraView" autoplay playsinline></video>
+
+  <button id="backButton">Volver al Menú</button>
+  <button id="muteButton">Silenciar</button>
+
+  <audio id="backgroundSound" loop>
+    <source src="music.mp3" type="audio/mp3">
+    Tu navegador no soporta el elemento de audio.
+  </audio>
+
+  <script type="module">
+    import 'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js';
+
+    const startButton = document.getElementById('startButton');
+    const backButton = document.getElementById('backButton');
+    const muteButton = document.getElementById('muteButton');
+    const mainMenuButton = document.getElementById('mainMenuButton');
+    const pcComponentsButton = document.getElementById('pcComponentsButton');
+    const modelViewerButton = document.getElementById('modelViewerButton');
+    const menu = document.getElementById('menu');
+    const modelViewerMenu = document.getElementById('modelViewerMenu');
+    const pcComponentsMenu = document.getElementById('pcComponentsMenu');
+    const arView = document.getElementById('arView');
+    const cameraView = document.getElementById('cameraView');
+    const robotImage = document.getElementById('robotImage');
+    const backgroundSound = document.getElementById('backgroundSound');
+    const neonBackground = document.getElementById('neonBackground');
+    const backToMainMenu = document.getElementById('backToMainMenu');
+
+    let isMuted = false;
+
+    // Función para crear luces de neón
+    function createNeonLight() {
+      const neonLight = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const startX = Math.random() * window.innerWidth;
+      const startY = Math.random() * window.innerHeight;
+      const endX = Math.random() * window.innerWidth;
+      const endY = Math.random() * window.innerHeight;
+      const controlX = (startX + endX) / 2 + (Math.random() - 0.5) * 200;
+      const controlY = (startY + endY) / 2 + (Math.random() - 0.5) * 200;
+
+      neonLight.setAttribute("d", `M${startX},${startY} Q${controlX},${controlY} ${endX},${endY}`);
+      neonLight.setAttribute("stroke", `hsl(${Math.random()*360},100%,50%)`);
+      neonLight.setAttribute("stroke-width", "2");
+      neonLight.setAttribute("fill", "none");
+      neonLight.setAttribute("filter", "url(#glow)");
+
+      neonBackground.appendChild(neonLight);
+
+      anime({
+        targets: neonLight,
+        opacity: [0, 1, 0],
+        strokeDashoffset: [anime.setDashoffset, 0],
+        easing: 'easeInOutSine',
+        duration: 2000 + Math.random() * 3000,
+        complete: function() {
+          neonLight.remove();
+          createNeonLight();
+        }
+      });
+    }
+
+    // Crear múltiples luces de neón
+    for (let i = 0; i < 20; i++) {
+      createNeonLight();
+    }
+
+    function showMainMenu() {
+      startButton.style.display = 'block';
+      robotImage.style.display = 'block';
+      menu.style.display = 'none';
+      modelViewerMenu.style.display = 'none';
+      pcComponentsMenu.style.display = 'none';
+      backButton.style.display = 'none';
+      arView.style.display = 'none';
+      cameraView.style.display = 'none';
+      if (window.stream) {
+        window.stream.getTracks().forEach(track => track.stop());
+      }
+    }
+
+    function showMenu() {
+      menu.style.display = 'block';
+      modelViewerMenu.style.display = 'none';
+      pcComponentsMenu.style.display = 'none';
+      arView.style.display = 'none';
+      cameraView.style.display = 'none';
+      backButton.style.display = 'block';
+    }
+
+    function showModelViewerMenu() {
+      menu.style.display = 'none';
+      modelViewerMenu.style.display = 'block';
+    }
+
+    startButton.addEventListener('click', () => {
+      startButton.style.display = 'none';
+      robotImage.style.display = 'none';
+      showMenu();
+      backgroundSound.play();
+    });
+
+    backButton.addEventListener('click', showMenu);
+
+    mainMenuButton.addEventListener('click', showMainMenu);
+
+    modelViewerButton.addEventListener('click', showModelViewerMenu);
+
+    backToMainMenu.addEventListener('click', showMenu);
+
+    pcComponentsButton.addEventListener('click', () => {
+      menu.style.display = 'none';
+      modelViewerMenu.style.display = 'none';
+      pcComponentsMenu.style.display = 'block';
+    });
+
+    muteButton.addEventListener('click', () => {
+      isMuted = !isMuted;
+      backgroundSound.muted = isMuted;
+      muteButton.textContent = isMuted ? 'Activar sonido' : 'Silenciar';
+    });
+
+    window.loadModel = (src) => {
+      menu.style.display = 'none';
+      modelViewerMenu.style.display = 'none';
+      pcComponentsMenu.style.display = 'none';
+      arView.style.display = 'block';
+      arView.innerHTML = '';
+
+      const modelViewer = document.createElement('model-viewer');
+      modelViewer.src = src;
+      modelViewer.alt = "modelo 3D";
+      modelViewer.ar = true;
+      modelViewer.arModes = "webxr scene-viewer quick-look";
+      modelViewer.cameraControls = true;
+      modelViewer.shadowIntensity = "1";
+      modelViewer.autoRotate = true;
+      modelViewer.autoRotateDelay = 0;
+      modelViewer.style.width = "100%";
+      modelViewer.style.height = "100%";
+
+      // Añadir animaciones específicas para cada modelo
+      if (src.includes('Astronaut')) {
+        modelViewer.animationName = "Idle";
+      } else if (src.includes('RobotExpressive')) {
+        modelViewer.animationName = "Wave";
+      } else if (src.includes('Horse')) {
+        modelViewer.animationName = "Gallop";
+      } else if (src.includes('motherboard')) {
+        modelViewer.animationName = "Rotate";
+      } else if (src.includes('gpu')) {
+        modelViewer.animationName = "Rotate";
+      } else if (src.includes('ram')) {
+        modelViewer.animationName = "Pulse";
+      } else if (src.includes('rom')) {
+        modelViewer.animationName = "Rotate";
+      } else if (src.includes('cpu')) {
+        modelViewer.animationName = "Pulse";
+      } else if (src.includes('ssd')) {
+        modelViewer.animationName = "Rotate";
+      }
+
+      arView.appendChild(modelViewer);
+
+      // Agregar animación de entrada
+      anime({
+        targets: modelViewer,
+        opacity: [0, 1],
+        scale: [0.5, 1],
+        duration: 1000,
+        easing: 'easeOutElastic(1, .8)'
+      });
+    };
+
+    window.startCamera = async () => {
+      menu.style.display = 'none';
+      modelViewerMenu.style.display = 'none';
+      pcComponentsMenu.style.display = 'none';
+      cameraView.style.display = 'block';
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        window.stream = stream;
+        cameraView.srcObject = stream;
+
+        // Agregar animación de entrada para la cámara
+        anime({
+          targets: cameraView,
+          opacity: [0, 1],
+          duration: 1000,
+          easing: 'easeInOutQuad'
+        });
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        alert('No se pudo acceder a la cámara. Por favor, asegúrate de dar los permisos necesarios.');
+        backButton.click();
+      }
+    };
+
+    // Animación para el botón de inicio
+    anime({
+      targets: startButton,
+      scale: [1, 1.1, 1],
+      duration: 2000,
+      loop: true,
+      easing: 'easeInOutQuad'
+    });
+
+    // Animación para el robot
+    anime({
+      targets: robotImage,
+      rotate: '1turn',
+      duration: 10000,
+      loop: true,
+      easing: 'linear'
+    });
+
+    // Precargar el sonido
+    backgroundSound.load(); 
+    /*realizo cambio*/
+    window.loadModel = (src) => {
+  menu.style.display = 'none';
+  modelViewerMenu.style.display = 'none';
+  pcComponentsMenu.style.display = 'none';
+  arView.style.display = 'block';
+  arView.innerHTML = ''; // Limpiar cualquier modelo anterior
+
+  const modelViewer = document.createElement('model-viewer');
+  modelViewer.src = src;
+  modelViewer.alt = "modelo 3D";
+  modelViewer.ar = true;  // Habilita AR
+  modelViewer.arModes = "webxr scene-viewer quick-look";  // Opciones de AR
+  modelViewer.cameraControls = true;
+  modelViewer.shadowIntensity = "1";
+  modelViewer.autoRotate = true;
+  modelViewer.autoRotateDelay = 0;
+  modelViewer.style.width = "100%";
+  modelViewer.style.height = "100%";
+
+  arView.appendChild(modelViewer);
+
+  // Agregar animación de entrada
+  anime({
+    targets: modelViewer,
+    opacity: [0, 1],
+    scale: [0.5, 1],
+    duration: 1000,
+    easing: 'easeOutElastic(1, .8)'
+  });
+};
+/*Realizo cambios en cuanto a la camara para leer codigos QR */
+
+window.startCamera = async () => {
+  menu.style.display = 'none';
+  modelViewerMenu.style.display = 'none';
+  pcComponentsMenu.style.display = 'none';
+  cameraView.style.display = 'block';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    window.stream = stream;
+    cameraView.srcObject = stream;
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    const scanQRCode = () => {
+      if (cameraView.readyState === cameraView.HAVE_ENOUGH_DATA) {
+        canvas.width = cameraView.videoWidth;
+        canvas.height = cameraView.videoHeight;
+        context.drawImage(cameraView, 0, 0, canvas.width, canvas.height);
+
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+        if (qrCode) {
+          loadModel(qrCode.data);
+          stopCamera(); 
+        }
+      }
+      requestAnimationFrame(scanQRCode);
+    };
+
+    scanQRCode();
+  } catch (error) {
+    console.error('Error accessing camera:', error);
+    alert('No se pudo acceder a la cámara. Por favor, asegúrate de dar los permisos necesarios.');
+    backButton.click();
+  }
+};
+
+function stopCamera() {
+  if (window.stream) {
+    window.stream.getTracks().forEach(track => track.stop());
+  }
+  cameraView.style.display = 'none';
+}
+
+
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  </body></html>
